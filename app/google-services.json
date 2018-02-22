@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "606034326914",
+    "firebase_url": "https://flashcards-8e873.firebaseio.com",
+    "project_id": "flashcards-8e873",
+    "storage_bucket": "flashcards-8e873.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:606034326914:android:570d154844af9d1d",
+        "android_client_info": {
+          "package_name": "it.federicobono.flashcards"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "606034326914-13ob1nmf5gq6vfgtq0rhboseh8c6ktil.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "it.federicobono.flashcards",
+            "certificate_hash": "a074761315ef2accf18407719bedf90e12ac31fd"
+          }
+        },
+        {
+          "client_id": "606034326914-9tke14g10fhpb7o140qp8202fd2rdug5.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDAJkZC-POFAwR_mjDg_PLJkGKOwuy_xVw"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "606034326914-9tke14g10fhpb7o140qp8202fd2rdug5.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
