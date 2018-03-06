@@ -1,16 +1,26 @@
 package it.federicobono.flashcards;
 
 import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
+
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import java.util.List;
 
@@ -18,40 +28,64 @@ import java.util.List;
  * Created by federicobono on 22/02/18.
  */
 
-public class HomeListAdapter extends ArrayAdapter<FlashCard>{
+public class HomeListAdapter extends ArrayAdapter<Deck> implements AdapterView.OnItemClickListener{
+
+    private static final String TAG = "FBLOG - HomeListAdapter";
 
     public HomeListAdapter(Context context, int textViewResourceId,
-                         List<FlashCard> objects) {
-        super(context, textViewResourceId, objects);
+                         List<Deck> objects) {
+        super(context, textViewResourceId, DeckList.getLista());
+    }
+
+    static class ViewHolder {
+        TextView titolo;
+        TextView cont;
+        ImageView imageView;
+        int size;
+
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
-        LayoutInflater inflater = (LayoutInflater) getContext()
-                .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        convertView = inflater.inflate(R.layout.home_list_item, null);
+        ViewHolder holder;
+        Deck deck = getItem(position);
 
-        TextView titolo = (TextView) convertView.findViewById(R.id.itemTitle);
-        TextView desc = (TextView) convertView.findViewById(R.id.itemDesc);
-        TextView cont = (TextView) convertView.findViewById(R.id.itemCount);
-        ImageView imageView = (ImageView) convertView.findViewById(R.id.itemIcon);
+        if(convertView == null) {
+            LayoutInflater inflater = (LayoutInflater) getContext()
+                    .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+            convertView = inflater.inflate(R.layout.home_list_item, null);
+            holder = new ViewHolder();
+            holder.titolo = (TextView) convertView.findViewById(R.id.itemTitle);
+            holder.cont = (TextView) convertView.findViewById(R.id.itemCount);
+            holder.imageView = (ImageView) convertView.findViewById(R.id.itemIcon);
+            final Resources res = getContext().getResources();
+            final int tileSize = res.getDimensionPixelSize(R.dimen.letter_tile_size);
 
-        FlashCard flashCard = getItem(position);
+            final LetterTileProvider tileProvider = new LetterTileProvider(getContext());
+            final Bitmap letterTile = tileProvider.getLetterTile(deck.getMateria(), deck.getColore(), tileSize, tileSize, true);
 
-        titolo.setText(flashCard.getTitolo());
-        desc.setText(flashCard.getDescrizione());
-        cont.setText("10");
+            holder.imageView.setImageBitmap(letterTile);
 
-
-        final Resources res = getContext().getResources();
-        final int tileSize = res.getDimensionPixelSize(R.dimen.letter_tile_size);
-
-        final LetterTileProvider tileProvider = new LetterTileProvider(getContext());
-        final Bitmap letterTile = tileProvider.getLetterTile(flashCard.getTitolo(), "#eee",tileSize , tileSize, true);
-
-        imageView.setImageBitmap(letterTile);
-
-
+            try {
+                holder.size = deck.getCardSize();
+            }catch (Exception e) {
+                e.printStackTrace();
+                holder.size = 0;
+            }
+            convertView.setTag(holder);
+        }else {
+            holder = (ViewHolder) convertView.getTag();
+        }
+        holder.cont.setText(String.valueOf(holder.size));
+        holder.titolo.setText(deck.getTitolo());
         return convertView;
+    }
+
+
+    @Override
+    public void onItemClick(AdapterView<?> adapterView, View view, int position, long l) {
+        Intent intent = new Intent(getContext(), DeckDetailActivity.class);
+        intent.putExtra("index", position);
+        getContext().startActivity(intent);
     }
 }

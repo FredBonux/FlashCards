@@ -101,14 +101,7 @@ public class LetterTileProvider {
      *         tile background color
      */
     private int pickColor(String key) {
-        // String.hashCode() is not supposed to change across java versions, so
-        // this should guarantee the same key always maps to the same color
-        final int color = Math.abs(key.hashCode()) % NUM_OF_TILE_COLORS;
-        try {
-            return mColors.getColor(color, Color.BLACK);
-        } finally {
-            mColors.recycle();
-        }
+        return Color.parseColor(key);
     }
 
     public Bitmap getLetterTile(String displayName, String key, int width, int height, boolean round) {
