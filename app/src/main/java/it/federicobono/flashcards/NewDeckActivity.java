@@ -22,7 +22,7 @@ public class NewDeckActivity extends AppCompatActivity {
     HSLColorPicker colorPicker;
     ImageView imageView;
     FloatingActionButton fab;
-    EditText mDeckName;
+    EditText mDeckName, mMateria;
     int selectedColor;
     AppBarLayout appBar;
 
@@ -31,12 +31,13 @@ public class NewDeckActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_deck);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        toolbar.setTitle("Crea un nuovo deck!");
+        toolbar.setTitle(R.string.newDeck);
         setSupportActionBar(toolbar);
         imageView = (ImageView) findViewById(R.id.imageView);
         colorPicker = (HSLColorPicker) findViewById(R.id.colorPicker);
         fab = (FloatingActionButton) findViewById(R.id.fab);
         mDeckName = (EditText) findViewById(R.id.newDeckTitle);
+        mMateria = (EditText) findViewById(R.id.newDeckMateria);
         appBar = (AppBarLayout) findViewById(R.id.app_bar);
 
         colorPicker.setColorSelectionListener(new SimpleColorSelectionListener() {
@@ -53,9 +54,11 @@ public class NewDeckActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 String deckName = mDeckName.getText().toString();
+                String materia = mMateria.getText().toString();
+                if(materia.length() <= 0) materia = "Altro";
                 if(deckName.length() <= 0) return;
                 String hexColor = String.format("#%06X", (0xFFFFFF & selectedColor));
-                Deck deck = new Deck(hexColor, deckName, "Altro");
+                Deck deck = new Deck(hexColor, deckName, materia);
                 if(deck.save()) {
                     finish();
                 }else {

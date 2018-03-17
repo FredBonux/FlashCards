@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
+import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -21,6 +22,8 @@ import com.google.android.gms.tasks.Task;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.QuerySnapshot;
+
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -40,6 +43,7 @@ public class HomeListAdapter extends ArrayAdapter<Deck> implements AdapterView.O
     static class ViewHolder {
         TextView titolo;
         TextView cont;
+        TextView materia;
         ImageView imageView;
         int size;
 
@@ -58,26 +62,30 @@ public class HomeListAdapter extends ArrayAdapter<Deck> implements AdapterView.O
             holder.titolo = (TextView) convertView.findViewById(R.id.itemTitle);
             holder.cont = (TextView) convertView.findViewById(R.id.itemCount);
             holder.imageView = (ImageView) convertView.findViewById(R.id.itemIcon);
-            final Resources res = getContext().getResources();
-            final int tileSize = res.getDimensionPixelSize(R.dimen.letter_tile_size);
+            holder.materia = (TextView) convertView.findViewById(R.id.materia);
 
-            final LetterTileProvider tileProvider = new LetterTileProvider(getContext());
-            final Bitmap letterTile = tileProvider.getLetterTile(deck.getMateria(), deck.getColore(), tileSize, tileSize, true);
-
-            holder.imageView.setImageBitmap(letterTile);
-
-            try {
-                holder.size = deck.getCardSize();
-            }catch (Exception e) {
-                e.printStackTrace();
-                holder.size = 0;
-            }
             convertView.setTag(holder);
         }else {
             holder = (ViewHolder) convertView.getTag();
         }
+        final Resources res = getContext().getResources();
+        final int tileSize = res.getDimensionPixelSize(R.dimen.letter_tile_size);
+
+        final LetterTileProvider tileProvider = new LetterTileProvider(getContext());
+        final Bitmap letterTile = tileProvider.getLetterTile(deck.getMateria(), deck.getColore(), tileSize, tileSize, true);
+
+        try {
+            holder.size = deck.getCardSize();
+        }catch (Exception e) {
+            e.printStackTrace();
+            holder.size = 0;
+        }
+
+        holder.imageView.setImageBitmap(letterTile);
         holder.cont.setText(String.valueOf(holder.size));
         holder.titolo.setText(deck.getTitolo());
+        holder.materia.setText(deck.getMateria());
+        holder.materia.setTextColor(Color.parseColor(deck.getColore()));
         return convertView;
     }
 

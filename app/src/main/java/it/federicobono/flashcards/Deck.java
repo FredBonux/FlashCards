@@ -3,21 +3,26 @@ package it.federicobono.flashcards;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.widget.ArrayAdapter;
 
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.gms.tasks.Tasks;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.firestore.CollectionReference;
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.Exclude;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.google.firebase.firestore.IgnoreExtraProperties;
 import com.google.firebase.firestore.QuerySnapshot;
 
 import java.io.Serializable;
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
 
@@ -30,6 +35,9 @@ public class Deck extends DatabaseObject implements Serializable{
     private String titolo;
     private String materia;
     private DocumentReference creator;
+
+    @Exclude
+    private Integer size = null;
 
     public Deck() {}
 
@@ -110,17 +118,68 @@ public class Deck extends DatabaseObject implements Serializable{
         data.put("materia", this.materia);
         return data;
     }
+
+    public List<Card> getCards() {
+        try {
+            Log.d("FBLOG - Deck", "getCards: doing");
+            AsyncTask task = (new GetCardsTask()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, this);
+            List<Card> res = (List<Card>) task.get();
+
+            Log.d("FBLOG - Deck", "getCards: done");
+            return res;
+        }catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return new ArrayList<>();
+    }
+
+    private class GetCardsTask extends AsyncTask<Deck, Void, List<Card>> {
+
+        @Override
+        protected List<Card> doInBackground(Deck... decks) {
+            List<Card> result = new ArrayList<Card>();
+
+            Log.d("FBLOG - CardsTask", "doInBackground: fetching");
+            if(decks.length <= 0) return result;
+            try {
+                Log.d("FBLOG - CardsTask", "doInBackground: fetching");
+                Task<QuerySnapshot> task = decks[0].getReference().collection("Cards").get();
+                QuerySnapshot query = Tasks.await(task);
+                if (query.isEmpty() || query.getDocuments().isEmpty()) {
+                    Log.d("FBLOG - CardsTask", "doInBackground: isEmpty");
+                    return result;
+                }
+
+                for (DocumentSnapshot document: query) {
+                    Card c = document.toObject(Card.class);
+                    result.add(c);
+                    Log.d("FBLOG - CardsTask", c.frontText + " => " + c.backText);
+                }
+                return result;
+            }catch (Exception ex) {
+                ex.printStackTrace();
+            }
+            return result;
+        }
+    }
+
     private class GetCardSize extends AsyncTask<Deck, Void, Integer> {
 
         @Override
         protected Integer doInBackground(Deck... decks) {
             if(decks.length <= 0) return 0;
+            if(decks[0].size != null) {
+                return decks[0].size;
+            }else {
+                decks[0].size = 0;
+            }
             try {
                 Task<QuerySnapshot> task = decks[0].getReference().collection("Cards").get();
                 QuerySnapshot query = Tasks.await(task);
                 if (query.isEmpty() || query.getDocuments().isEmpty()) {
                     return 0;
                 }
+                decks[0].size = query.getDocuments().toArray().length;
                 return query.getDocuments().toArray().length;
             }catch (Exception ex) {
                 ex.printStackTrace();

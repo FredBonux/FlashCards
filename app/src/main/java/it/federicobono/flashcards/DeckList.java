@@ -28,6 +28,7 @@ public class DeckList{
     public static void add(Deck d) {
         for(int i = 0; i < lista.size(); i++) {
             if(d.getReference().getId().equals(lista.get(i).getReference().getId())) {
+                lista.remove(i);
                 lista.add(i, d);
                 mainActivity.notifyDataSetChanged();
                 return;

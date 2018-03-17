@@ -2,4 +2,17 @@
 <resources>
     <string name="app_name">FlashCards</string>
     <string name="google_login">Accedi con Google</string>
+    <string name="title_activity_deck_detail">Dettagli del deck</string>
+    <string name="title_activity_new_deck">Nuovo Mazzo</string>
+    <string name="frontSide">Fronte</string>
+    <string name="backSide">Retro</string>
+    <string name="newCard">Nuova Carta</string>
+    <string name="insertTextHere">Inserisci il testo</string>
+    <string name="cardUploading">La carta si sta caricando</string>
+    <string name="action_settings">Impostazioni</string>
+    <string name="next">Successivo</string>
+    <string name="noCards">Nessuna Card trovata!</string>
+    <string name="newDeck">Nuovo Mazzo</string>
+    <string name="deckTitle">Titolo del mazzo</string>
+    <string name="subject">Materia</string>
 </resources>

@@ -1,5 +1,6 @@
 package it.federicobono.flashcards;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -40,6 +41,7 @@ public class LoginActivity extends AppCompatActivity{
         });
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
@@ -50,10 +52,12 @@ public class LoginActivity extends AppCompatActivity{
             if (resultCode == RESULT_OK) {
                 // Successfully signed in
                 FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-                Log.d("CLOG", user.getDisplayName());
+                Log.d("FBLOG", user.getDisplayName());
                 finish();
             } else {
-                Log.e("CLOG", "Non è stato possibile effettuare il login!");
+                Log.e("FBLOG", "Non è stato possibile effettuare il login!");
+                response.getException().printStackTrace();
+
             }
         }
     }

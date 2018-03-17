@@ -29,7 +29,9 @@
         <activity
             android:name=".NewDeckActivity"
             android:label="@string/title_activity_new_deck"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".NewCardActivity" />
+        <activity android:name=".PlayDeckActivity"></activity>
     </application>
 
 </manifest>
