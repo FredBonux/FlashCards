@@ -72,11 +72,17 @@ public class PlayDeckActivity extends AppCompatActivity {
                 if(easyFlipView.getCurrentFlipState() == EasyFlipView.FlipState.BACK_SIDE){
                     frontCard.setCardElevation(0);
                     backCard.setCardElevation(0);
+                    frontText.setText("");
+                    backText.setText("");
                     easyFlipView.flipTheView();
                 }
                 moveNext();
             }
         });
+
+        if(savedInstanceState != null) {
+            index = savedInstanceState.getInt("index")-1;
+        }
 
         moveNext();
 
@@ -90,5 +96,16 @@ public class PlayDeckActivity extends AppCompatActivity {
 
         frontText.setText(fronts.get(index));
         backText.setText(backs.get(index));
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(outState != null) {
+            outState.putInt("index", index);
+        }else {
+            outState = new Bundle();
+            outState.putInt("index", index);
+        }
     }
 }

@@ -40,6 +40,12 @@ public class NewDeckActivity extends AppCompatActivity {
         mMateria = (EditText) findViewById(R.id.newDeckMateria);
         appBar = (AppBarLayout) findViewById(R.id.app_bar);
 
+        if(savedInstanceState != null) {
+            selectedColor = savedInstanceState.getInt("selectedColor");
+            imageView.getBackground().setColorFilter(selectedColor, PorterDuff.Mode.MULTIPLY);
+            appBar.setBackgroundColor(selectedColor);
+        }
+
         colorPicker.setColorSelectionListener(new SimpleColorSelectionListener() {
             @Override
             public void onColorSelected(int color) {
@@ -59,12 +65,16 @@ public class NewDeckActivity extends AppCompatActivity {
                 if(deckName.length() <= 0) return;
                 String hexColor = String.format("#%06X", (0xFFFFFF & selectedColor));
                 Deck deck = new Deck(hexColor, deckName, materia);
-                if(deck.save()) {
-                    finish();
-                }else {
-                    Toast.makeText(NewDeckActivity.this, "Errore!", Toast.LENGTH_SHORT).show();
-                }
+                deck.save();
+                finish();
             }
         });
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if(outState == null) outState = new Bundle();
+        outState.putInt("selectedColor", selectedColor);
     }
 }

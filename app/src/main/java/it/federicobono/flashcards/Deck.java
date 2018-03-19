@@ -38,6 +38,8 @@ public class Deck extends DatabaseObject implements Serializable{
 
     @Exclude
     private Integer size = null;
+    @Exclude
+    private List<Card> carte = null;
 
     public Deck() {}
 
@@ -87,27 +89,20 @@ public class Deck extends DatabaseObject implements Serializable{
         this.materia = materia;
     }
 
-    public int getCardSize() {
-        try {
-            return new GetCardSize().execute(this).get();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } catch (ExecutionException e) {
-            e.printStackTrace();
-        }
-        return 0;
+    public void setSize(Integer size) {
+        this.size = size;
     }
 
-    public boolean save() {
-        Log.d("FBLOG - Deck", "Sto salvando");
+    public void addToSize(Integer add) {
+        size+=add;
+    }
+
+    public void save() {
         try {
             new DeckSaveTask().execute(this);
-            return true;
         } catch (Exception ex) {
-            Log.e("FBLOG - Deck", "Errore nel salvataggio!");
             ex.printStackTrace();
         }
-        return false;
     }
 
     public Map<String, Object> getMap(){
@@ -120,12 +115,13 @@ public class Deck extends DatabaseObject implements Serializable{
     }
 
     public List<Card> getCards() {
+        if(this.carte != null && this.carte.size() == this.size) return this.carte;
+
         try {
             Log.d("FBLOG - Deck", "getCards: doing");
             AsyncTask task = (new GetCardsTask()).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, this);
             List<Card> res = (List<Card>) task.get();
-
-            Log.d("FBLOG - Deck", "getCards: done");
+            this.carte = res;
             return res;
         }catch (Exception ex) {
             ex.printStackTrace();
@@ -163,31 +159,6 @@ public class Deck extends DatabaseObject implements Serializable{
         }
     }
 
-    private class GetCardSize extends AsyncTask<Deck, Void, Integer> {
-
-        @Override
-        protected Integer doInBackground(Deck... decks) {
-            if(decks.length <= 0) return 0;
-            if(decks[0].size != null) {
-                return decks[0].size;
-            }else {
-                decks[0].size = 0;
-            }
-            try {
-                Task<QuerySnapshot> task = decks[0].getReference().collection("Cards").get();
-                QuerySnapshot query = Tasks.await(task);
-                if (query.isEmpty() || query.getDocuments().isEmpty()) {
-                    return 0;
-                }
-                decks[0].size = query.getDocuments().toArray().length;
-                return query.getDocuments().toArray().length;
-            }catch (Exception ex) {
-                ex.printStackTrace();
-            }
-            return 0;
-        }
-    }
-
     private class DeckSaveTask extends AsyncTask<Deck, Void, Void> {
         private static final String TAG = "FBLOG - DeckSaveTask";
 
@@ -206,19 +177,7 @@ public class Deck extends DatabaseObject implements Serializable{
                 }else {
                     DocumentReference reference = db.collection("Decks").document();
                     reference.set(decks[0].getMap());
-                    Log.d(TAG, reference.getId());
-                    if(reference != null && reference.getId() != null) {
-                        Log.d(TAG, "collegando il deck con il creatore");
-                        Task<DocumentSnapshot> task2 = decks[0].getCreator().get();
-                        /*ArrayList<DocumentReference> list = (ArrayList<DocumentReference>) Tasks.await(task2).get("Decks");
-                        list.add(reference);
-                        Map<String, Object> objectMap = new HashMap<>();
-                        objectMap.put("Decks", list);
-                        decks[0].getCreator().set(objectMap);*/
-                        decks[0].setReference(reference);
-                        DeckList.add(decks[0]);
-                        return null;
-                    }
+                    decks[0].setReference(reference);
                 }
             }catch (Exception ex) {
                 ex.printStackTrace();

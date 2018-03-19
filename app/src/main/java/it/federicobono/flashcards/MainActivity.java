@@ -7,6 +7,9 @@ package it.federicobono.flashcards;
         import android.util.Log;
         import android.view.View;
         import android.widget.ListView;
+        import android.widget.Toast;
+
+        import com.firebase.ui.auth.data.model.User;
         import com.google.firebase.auth.FirebaseAuth;
         import com.google.firebase.auth.FirebaseUser;
         import com.google.firebase.firestore.DocumentReference;
@@ -15,18 +18,22 @@ package it.federicobono.flashcards;
         import com.google.firebase.firestore.FirebaseFirestore;
         import com.google.firebase.firestore.FirebaseFirestoreException;
         import com.google.firebase.firestore.FirebaseFirestoreSettings;
+        import com.google.firebase.firestore.ListenerRegistration;
         import com.google.firebase.firestore.QuerySnapshot;
         import java.util.LinkedList;
         import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
     private static final String TAG = "FBLOG - Main";
+    private static final int NEW_DECK = 1;
+
     private FirebaseFirestore db = FirebaseFirestore.getInstance();
-    private final List<Deck> decksList = new LinkedList<>();
     public ListView listView;
     HomeListAdapter adapter;
 
     FloatingActionButton mfab;
+
+    ListenerRegistration deckListener;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -46,7 +53,7 @@ public class MainActivity extends AppCompatActivity {
         mfab.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startActivity(detIntent);
+                startActivityForResult(detIntent, MainActivity.NEW_DECK);
             }
         });
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
@@ -54,10 +61,12 @@ public class MainActivity extends AppCompatActivity {
         //Nessun utente loggato!
         if(user == null) {
             Intent intent = new Intent(this, LoginActivity.class);
-            startActivity(intent);
+            startActivityForResult(intent, 0);
+        }else {
+            bindListener();
         }
 
-        adapter = new HomeListAdapter(this, R.layout.home_list_item, decksList);
+        adapter = new HomeListAdapter(this, R.layout.home_list_item, DeckList.getLista());
         listView = (ListView)findViewById(R.id.homeListView);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(adapter);
@@ -65,9 +74,6 @@ public class MainActivity extends AppCompatActivity {
         Boolean isListPopulated = false;
         if(savedInstanceState != null)
             isListPopulated = savedInstanceState.getBoolean("isListPopulated");
-        if(isListPopulated == null || isListPopulated == false) {
-            fetchDecks();
-        }
     }
 
     @Override
@@ -76,16 +82,42 @@ public class MainActivity extends AppCompatActivity {
         outState.putBoolean("isListPopulated", true);
     }
 
-    private void fetchDecks() {
-        DeckList.refreshList();
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(requestCode == 0) {
+            bindListener();
+        }
     }
 
-    public void notifyDataSetChanged() {
-        runOnUiThread(new Runnable() {
+    private void bindListener() {
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        DocumentReference ref = db.collection("Utenti").document(user.getUid());
+        if(deckListener != null)
+            deckListener.remove();
+        deckListener = db.collection("Decks").whereEqualTo("creator", ref).addSnapshotListener(this, new EventListener<QuerySnapshot>() {
             @Override
-            public void run() {
-                ((HomeListAdapter) listView.getAdapter()).notifyDataSetChanged();
+            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+                DeckList.getLista().clear();
+                for (DocumentSnapshot doc: documentSnapshots) {
+                    Deck d = doc.toObject(Deck.class).withRef(doc.getReference());
+                    Log.d(TAG, "added: " + d.getTitolo());
+                    DeckList.getLista().add(d);
+                    adapter.notifyDataSetChanged();
+                }
             }
         });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        bindListener();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
+        bindListener();
     }
 }

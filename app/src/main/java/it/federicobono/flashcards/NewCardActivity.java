@@ -51,11 +51,10 @@ public class NewCardActivity extends AppCompatActivity {
                     @Override
                     public void onSuccess(DocumentReference documentReference) {
                         Log.d(TAG, documentReference.getId() + " salvato!");
-                        setResult(1);
-                        finish();
                     }
                 });
                 Toast.makeText(NewCardActivity.this, R.string.cardUploading, Toast.LENGTH_SHORT).show();
+                finish();
             }
         });
     }

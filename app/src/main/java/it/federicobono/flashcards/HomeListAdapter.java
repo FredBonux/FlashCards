@@ -8,6 +8,7 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +26,7 @@ import com.google.firebase.firestore.QuerySnapshot;
 
 import org.w3c.dom.Text;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,12 +39,11 @@ public class HomeListAdapter extends ArrayAdapter<Deck> implements AdapterView.O
 
     public HomeListAdapter(Context context, int textViewResourceId,
                          List<Deck> objects) {
-        super(context, textViewResourceId, DeckList.getLista());
+        super(context, textViewResourceId, objects);
     }
 
     static class ViewHolder {
         TextView titolo;
-        TextView cont;
         TextView materia;
         ImageView imageView;
         int size;
@@ -53,14 +54,13 @@ public class HomeListAdapter extends ArrayAdapter<Deck> implements AdapterView.O
     public View getView(int position, View convertView, ViewGroup parent) {
         ViewHolder holder;
         Deck deck = getItem(position);
-
+        Log.d(TAG, "listing: " + deck.getTitolo());
         if(convertView == null) {
             LayoutInflater inflater = (LayoutInflater) getContext()
                     .getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             convertView = inflater.inflate(R.layout.home_list_item, null);
             holder = new ViewHolder();
             holder.titolo = (TextView) convertView.findViewById(R.id.itemTitle);
-            holder.cont = (TextView) convertView.findViewById(R.id.itemCount);
             holder.imageView = (ImageView) convertView.findViewById(R.id.itemIcon);
             holder.materia = (TextView) convertView.findViewById(R.id.materia);
 
@@ -73,19 +73,12 @@ public class HomeListAdapter extends ArrayAdapter<Deck> implements AdapterView.O
 
         final LetterTileProvider tileProvider = new LetterTileProvider(getContext());
         final Bitmap letterTile = tileProvider.getLetterTile(deck.getMateria(), deck.getColore(), tileSize, tileSize, true);
-
-        try {
-            holder.size = deck.getCardSize();
-        }catch (Exception e) {
-            e.printStackTrace();
-            holder.size = 0;
-        }
-
         holder.imageView.setImageBitmap(letterTile);
-        holder.cont.setText(String.valueOf(holder.size));
         holder.titolo.setText(deck.getTitolo());
         holder.materia.setText(deck.getMateria());
         holder.materia.setTextColor(Color.parseColor(deck.getColore()));
+
+        Log.d(TAG,"Return view");
         return convertView;
     }
 

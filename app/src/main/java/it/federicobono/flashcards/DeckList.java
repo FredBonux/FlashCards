@@ -25,39 +25,6 @@ public class DeckList{
     static final ArrayList<Deck> lista = new ArrayList<Deck>();
     static MainActivity mainActivity;
 
-    public static void add(Deck d) {
-        for(int i = 0; i < lista.size(); i++) {
-            if(d.getReference().getId().equals(lista.get(i).getReference().getId())) {
-                lista.remove(i);
-                lista.add(i, d);
-                mainActivity.notifyDataSetChanged();
-                return;
-            }
-        }
-        lista.add(d);
-        mainActivity.notifyDataSetChanged();
-    }
-
-    public static void refreshList() {
-        FirebaseFirestore db = FirebaseFirestore.getInstance();
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if(user != null) {
-            DocumentReference userRef = db.collection("Utenti").document(user.getUid());
-            db.collection("Decks").whereEqualTo("creator", userRef)
-                    .get().addOnSuccessListener(new OnSuccessListener<QuerySnapshot>() {
-                @Override
-                public void onSuccess(QuerySnapshot documentSnapshots) {
-                    //decksList.clear();
-                    for (DocumentSnapshot dRef: documentSnapshots) {
-                        Deck d = dRef.toObject(Deck.class).withRef(dRef.getReference());
-                        Log.d("FBLOG - FetchDecks", d.getTitolo());
-                        add(d);
-                    }
-                }
-            });
-        }
-    }
-
     public static ArrayList<Deck> getLista() {
         return lista;
     }

@@ -22,6 +22,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import com.google.android.gms.tasks.Task;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.ListenerRegistration;
+import com.google.firebase.firestore.QuerySnapshot;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -36,14 +41,18 @@ public class DeckDetailActivity extends AppCompatActivity {
     List<Card> cardList = new ArrayList<>();
     Deck d;
 
+
+    private ListenerRegistration firestoreListener;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Intent intent = getIntent();
         index = intent.getIntExtra("index", 0);
         d = (Deck) DeckList.getLista().get(index);
-        Log.d(TAG, d.getTitolo());
         setContentView(R.layout.activity_deck_detail);
+
+
         final AppBarLayout appBar = (AppBarLayout) findViewById(R.id.app_bar);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
@@ -52,9 +61,8 @@ public class DeckDetailActivity extends AppCompatActivity {
 
         cardListView = (RecyclerView) findViewById(R.id.cardList);
         cardListView.setLayoutManager(new LinearLayoutManager(this));
-        listAdapter = new DeckDetailListAdapter(d.getCards(), this);
+        listAdapter = new DeckDetailListAdapter(cardList, this);
         cardListView.setAdapter(listAdapter);
-        cardList = listAdapter.cardList;
 
 
         final int color = Color.parseColor(d.getColore());
@@ -101,24 +109,32 @@ public class DeckDetailActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 addCardIntent.putExtra("index", index);
-                startActivityForResult(addCardIntent, 0);
+                startActivityForResult(addCardIntent , 0);
+            }
+        });
+
+        bindListener();
+    }
+
+    private void bindListener() {
+        firestoreListener = d.getReference().collection("Cards").addSnapshotListener(this, new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(QuerySnapshot documentSnapshots, FirebaseFirestoreException e) {
+                Log.d(TAG, "Cards updated!");
+                cardList.clear();
+                for (DocumentSnapshot document: documentSnapshots) {
+                    Card card = document.toObject(Card.class).withRef(document.getReference());
+                    cardList.add(card);
+                }
+                listAdapter.cardList = cardList;
+                listAdapter.notifyDataSetChanged();
             }
         });
     }
 
     @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if(resultCode == 1) {
-            runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    cardList.clear();
-                    cardList.addAll(d.getCards());
-                    listAdapter.cardList = cardList;
-                    listAdapter.notifyDataSetChanged();
-                }
-            });
-        }
+    protected void onResume() {
+        super.onResume();
+        bindListener();
     }
 }
