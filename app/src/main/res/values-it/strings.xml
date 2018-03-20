@@ -15,4 +15,5 @@
     <string name="newDeck">Nuovo Mazzo</string>
     <string name="deckTitle">Titolo del mazzo</string>
     <string name="subject">Materia</string>
+    <string name="welcome">Benvenuto</string>
 </resources>

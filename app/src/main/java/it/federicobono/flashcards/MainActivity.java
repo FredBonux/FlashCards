@@ -1,6 +1,8 @@
 package it.federicobono.flashcards;
 
         import android.content.Intent;
+        import android.content.SharedPreferences;
+        import android.preference.PreferenceManager;
         import android.support.design.widget.FloatingActionButton;
         import android.support.v7.app.AppCompatActivity;
         import android.os.Bundle;
@@ -63,6 +65,16 @@ public class MainActivity extends AppCompatActivity {
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, 0);
         }else {
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            String name = preferences.getString("displayName", "");
+            if(name.length() <= 0) {
+                name = FirebaseAuth.getInstance().getCurrentUser().getDisplayName();
+                SharedPreferences.Editor editor = preferences.edit();
+                editor.putString("displayName",name);
+                editor.apply();
+            }
+
+            Toast.makeText(this, getResources().getString(R.string.welcome) + " " + name, Toast.LENGTH_SHORT).show();
             bindListener();
         }
 
@@ -87,11 +99,16 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if(requestCode == 0) {
             bindListener();
+            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+            SharedPreferences.Editor editor = preferences.edit();
+            editor.putString("displayName",FirebaseAuth.getInstance().getCurrentUser().getDisplayName());
+            editor.apply();
         }
     }
 
     private void bindListener() {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user == null) return;
         DocumentReference ref = db.collection("Utenti").document(user.getUid());
         if(deckListener != null)
             deckListener.remove();

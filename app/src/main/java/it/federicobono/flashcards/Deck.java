@@ -160,19 +160,13 @@ public class Deck extends DatabaseObject implements Serializable{
     }
 
     private class DeckSaveTask extends AsyncTask<Deck, Void, Void> {
-        private static final String TAG = "FBLOG - DeckSaveTask";
-
-
         @Override
         protected Void doInBackground(Deck... decks) {
             if(decks.length <= 0) return null;
-
             try {
                 FirebaseFirestore db = FirebaseFirestore.getInstance();
                 if(decks[0].getReference() != null) {
-                    Log.d(TAG, "Update del deck in corso!");
-                    Task<Void> task = decks[0].getReference().set(decks[0]);
-                    Void ref = Tasks.await(task);
+                    decks[0].getReference().set(decks[0]);
                     return null;
                 }else {
                     DocumentReference reference = db.collection("Decks").document();
@@ -182,7 +176,6 @@ public class Deck extends DatabaseObject implements Serializable{
             }catch (Exception ex) {
                 ex.printStackTrace();
             }
-
             return null;
         }
     }
