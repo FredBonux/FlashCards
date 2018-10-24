@@ -40,11 +40,11 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_margin="@dimen/fab_margin"
-        android:tint="@color/fabTint"
+        android:backgroundTint="@color/materialGreen"
         app:backgroundTint="?android:attr/colorAccent"
         app:fabSize="normal"
         app:layout_anchor="@id/app_bar"
         app:layout_anchorGravity="bottom|end"
-        app:srcCompat="@drawable/ic_done_black_24dp" />
+        app:srcCompat="@drawable/ic_check_white_24dp" />
 
 </android.support.design.widget.CoordinatorLayout>
