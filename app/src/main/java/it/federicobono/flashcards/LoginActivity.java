@@ -25,6 +25,7 @@ public class LoginActivity extends AppCompatActivity{
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+        //TODO: update GOOGLE SIGN IN API
         googleLoginBtn = (Button) findViewById(R.id.googleLoginBtn);
         googleLoginBtn.setOnClickListener(new View.OnClickListener() {
             @Override

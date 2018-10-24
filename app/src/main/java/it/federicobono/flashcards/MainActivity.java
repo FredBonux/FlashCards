@@ -1,6 +1,6 @@
 package it.federicobono.flashcards;
 
-        import android.content.Intent;
+import android.content.Intent;
         import android.content.SharedPreferences;
         import android.preference.PreferenceManager;
         import android.support.design.widget.FloatingActionButton;
@@ -41,30 +41,28 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Firebase stuffs
         FirebaseFirestoreSettings settings = new FirebaseFirestoreSettings.Builder()
                 .setPersistenceEnabled(true)
                 .build();
         db.setFirestoreSettings(settings);
-
-
-        DeckList.setMainActivity(this);
-
-        setContentView(R.layout.activity_main);
-        mfab = (FloatingActionButton) findViewById(R.id.homeFAB);
-        final Intent detIntent = new Intent(this, NewDeckActivity.class);
-        mfab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                startActivityForResult(detIntent, MainActivity.NEW_DECK);
-            }
-        });
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
-        //Nessun utente loggato!
+        DeckList.setMainActivity(this);
+        listeners();
+
+        //Setting up GUI
+        setContentView(R.layout.activity_main);
+        mfab = (FloatingActionButton) findViewById(R.id.homeFAB);
+        listView = (ListView)findViewById(R.id.homeListView);
+
+        //Checking if user is logged
         if(user == null) {
+            //Opening LoginActivity
             Intent intent = new Intent(this, LoginActivity.class);
             startActivityForResult(intent, 0);
         }else {
+            //Setting user prefs
             SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
             String name = preferences.getString("displayName", "");
             if(name.length() <= 0) {
@@ -73,19 +71,28 @@ public class MainActivity extends AppCompatActivity {
                 editor.putString("displayName",name);
                 editor.apply();
             }
-
             Toast.makeText(this, getResources().getString(R.string.welcome) + " " + name, Toast.LENGTH_SHORT).show();
             bindListener();
         }
 
+        //Setting up ListView
         adapter = new HomeListAdapter(this, R.layout.home_list_item, DeckList.getLista());
-        listView = (ListView)findViewById(R.id.homeListView);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(adapter);
 
         Boolean isListPopulated = false;
         if(savedInstanceState != null)
             isListPopulated = savedInstanceState.getBoolean("isListPopulated");
+    }
+
+    public void listeners() {
+        final Intent detIntent = new Intent(this, NewDeckActivity.class);
+        mfab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startActivityForResult(detIntent, MainActivity.NEW_DECK);
+            }
+        });
     }
 
     @Override

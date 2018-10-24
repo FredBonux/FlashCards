@@ -40,7 +40,9 @@
         android:text="Materia"
         app:layout_constraintEnd_toEndOf="@+id/itemTitle"
         app:layout_constraintStart_toStartOf="@+id/itemTitle"
-        app:layout_constraintTop_toTopOf="@+id/itemIcon" />
+        app:layout_constraintTop_toTopOf="@+id/itemIcon"
+        android:fontFamily="@font/roboto"
+        />
 
 </android.support.constraint.ConstraintLayout>
 
