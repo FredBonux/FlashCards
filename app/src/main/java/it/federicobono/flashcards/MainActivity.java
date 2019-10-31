@@ -1,12 +1,14 @@
 package it.federicobono.flashcards;
 
+import android.content.Context;
 import android.content.Intent;
         import android.content.SharedPreferences;
         import android.preference.PreferenceManager;
         import android.support.design.widget.FloatingActionButton;
         import android.support.v7.app.AppCompatActivity;
         import android.os.Bundle;
-        import android.util.Log;
+import android.util.AttributeSet;
+import android.util.Log;
         import android.view.View;
         import android.widget.ListView;
         import android.widget.Toast;
@@ -49,7 +51,6 @@ public class MainActivity extends AppCompatActivity {
         FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
 
         DeckList.setMainActivity(this);
-        listeners();
 
         //Setting up GUI
         setContentView(R.layout.activity_main);
@@ -83,6 +84,12 @@ public class MainActivity extends AppCompatActivity {
         Boolean isListPopulated = false;
         if(savedInstanceState != null)
             isListPopulated = savedInstanceState.getBoolean("isListPopulated");
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        listeners();
     }
 
     public void listeners() {
