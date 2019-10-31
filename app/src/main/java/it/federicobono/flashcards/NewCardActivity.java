@@ -31,7 +31,11 @@ public class NewCardActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_new_card);
         setTitle(R.string.newCard);
+    }
 
+    @Override
+    protected void onStart() {
+        super.onStart();
         cardTop = (CardView) findViewById(R.id.cardTop);
         cardBottom = (CardView) findViewById(R.id.cardBottom);
         fab = (FloatingActionButton) findViewById(R.id.fab);
